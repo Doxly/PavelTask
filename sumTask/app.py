@@ -1,5 +1,5 @@
 import sys
-import getopt
+import argparse
 """
 Main application.
 Enter two numbers:
@@ -7,7 +7,8 @@ Enter two numbers:
 - the number of summands
 
 Programm fill the list of all possible combinations of summands,
-count them and print the result
+count them and print the result.
+when summa = 50 in graph mode application work about 1 minute.
 """
 
 class Application(object):
@@ -44,23 +45,32 @@ class Application(object):
                     raise ValueError(e)
                     break
 
-    def start(self):
+    def start(self, summa=None, n_factors=None):
         "Main cicle of application"
+        interactive = summa is None or n_factors is None
         while True:
-            print('Enter zero to exit from app.')
-            self.summa = self.input_int("Enter Summa: ")
-            if self.summa==0:
-                break
+            if interactive:
+                if summa is None:
+                    print('Enter zero to exit from app.')
+                    summa = self.input_int("Enter Summa: ")
+                    if summa==0:
+                        break
 
-            self.n_factors = self.input_int(
-                "Enter summand count: ", 
-                [2, self.summa]
-                )
+                if n_factors is None:
+                    n_factors = self.input_int(
+                        "Enter summand count: ", 
+                        [2, summa]
+                        )
 
-            result = self.countCombinations(self.summa, self.n_factors)
+            result = self.countCombinations(summa, n_factors)
             
             print "\nI'm count %i combinations for (%i, %i)\n" % (
-                result, self.summa, self.n_factors)
+                result, summa, n_factors)
+            if interactive:
+                summa = None
+                n_factors = None
+            else:
+                break
         print "Thanks for using! Bye!"
 
     def countCombinations(self, summa, n_factors):
@@ -113,8 +123,9 @@ Application calculate amount of unique combinations of summands
 by given 'summa' and 'summand count'.
 """
 
-    def buildGraph(self):
-        summa = self.input_int('Enter summa:', [1, 20])
+    def buildGraph(self, summa=None):
+        if summa is None:
+            summa = self.input_int('Enter summa:', [1, 20])
         result = []
 
         for n_factors in xrange(2, summa):
@@ -131,18 +142,43 @@ by given 'summa' and 'summand count'.
 
 if __name__ == '__main__':
     application = Application()
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hg', ['help', 'graph'])
-    except getopt.GetoptError, e:
-        print e
-        application.help()
-        sys.exit(2)
-    for opt, arg in opts:
-        # print "opt=%s     arg=%s" % (opt, arg)
-        if opt in ['-h', '--help']:
-            application.help()
-            sys.exit(0)
-        elif opt =='--graph':
-            application.buildGraph()
-        else:
-            application.start() 
+    parser = argparse.ArgumentParser(description='process parameters')
+    parser.add_argument('-g', '--graph',
+        dest='mode',
+        action='store_const',
+        const='graph',
+        default='interactive',
+        help='Show graph of count combinations depend of count of summands.')
+    parser.add_argument('summa', 
+        metavar='summa',
+        type=int,
+        nargs='?',
+        default=None,
+        help='an integer for summa. Maximum limit is 20.')
+    parser.add_argument('n_summands',
+        metavar='n_summands',
+        type=int,
+        nargs='?',
+        default=None,
+        help='an integer for cummands count. In range(2, Summa).')
+    args = parser.parse_args()
+    print "args=%s" % args
+    if args.mode =='graph':
+        application.buildGraph(args.summa)
+    else:
+        application.start(args.summa, args.n_summands)
+    # try:
+    #     opts, args = getopt.getopt(sys.argv[1:], 'hg', ['help', 'graph'])
+    # except getopt.GetoptError, e:
+    #     print e
+    #     application.help()
+    #     sys.exit(2)
+    # for opt, arg in opts:
+    #     # print "opt=%s     arg=%s" % (opt, arg)
+    #     if opt in ['-h', '--help']:
+    #         application.help()
+    #         sys.exit(0)
+    #     elif opt =='--graph':
+    #         application.buildGraph()
+    #     else:
+    #         application.start() 

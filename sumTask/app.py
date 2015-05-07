@@ -163,7 +163,7 @@ by given 'summa' and 'summand count'.
             nargs='?',
             choices=xrange(2, 21),
             default=None,
-            help='an integer for cummands count. In range(2, Summa).')
+            help='an integer for summands count. In range(2, Summa).')
         args = parser.parse_args(parameters)
         return args
 

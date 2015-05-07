@@ -62,3 +62,22 @@ class TestSumTask(object):
 
         result = self.application.fillCombinations(7, 3)
         assert_equals(result, [[5,1,1],[4,2,1],[3,3,1],[3,2,2]])
+
+    def test_buildGraph(self):
+        result = self.application.buildGraph(7)
+        assert_equals(result, [(2,3),(3,4),(4,3),(5,2),(6,1)])
+
+    def test_getArgs(self):
+        result = self.application.getArgs('10 5 -g '.split())
+        assert_equals(result.summa, 10)
+        assert_equals(result.mode, 'graph')
+        assert_equals(result.n_factors, 5)
+
+        result = self.application.getArgs('--graph 10 5 '.split())
+        assert_equals(result.summa, 10)
+        assert_equals(result.mode, 'graph')
+        assert_equals(result.n_factors, 5)
+
+        # testing argument parsing with wrong arguments is impossible
+        # because of argparse make sys.exit(2) in case of any 
+        # argument error.
